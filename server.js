@@ -110,11 +110,11 @@ app.put('/todos/:id', function(req, res) {
 // POST /todos
 app.post('/todos', function(req, res) {
 	var body = _.pick(req.body, 'description', 'completed');
-
+	body.description = body.description.trim();
 	db.todo.create(body).then(function(todo) {
 		res.json(todo.toJSON());
 	}, function(e) {
-		res.status(400).json(e.message);
+		res.status(400).json(e);
 	});
 });
 
@@ -122,11 +122,33 @@ app.post('/users', function(req, res) {
 	var body = _.pick(req.body, 'email', 'password');
 
 	db.user.create(body).then(function (user) {
-		res.json(user.toJSON());
+		
+		res.json(user.toPublicJSON());
 	}, function	(e){
-		res.status(400).json(e.message);
+		res.status(400).json(e);
 	});
 
+});
+
+app.post('/users/login',function(req, res){
+	var body = _.pick(req.body, 'email', 'password');
+	if(typeof body.email !== 'string' || typeof	body.password !== 'string'){
+		return res.status(400).send();
+	}
+	db.user.findOne({
+		where: {
+			email: body.email
+		}
+	}).then(function(user){
+		if(!!user){
+			res.json(user);
+		} else{
+			res.status(401).send();
+		}
+	},function(e){
+		res.status(500).send();
+	});
+	
 });
 
 db.sequelize.sync().then(function() {
