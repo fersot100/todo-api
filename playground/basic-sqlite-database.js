@@ -18,45 +18,48 @@ var Todo = sequelize.define('todo', {
 		defaultValue: false
 	}
 });
+var User = sequelize.define('user', {
+	email: Sequelize.STRING
+});
+
+Todo.belongsTo(User);
+User.hasMany(Todo);
 
 sequelize.sync({
 	// force: true
 }).then(function() {
 	console.log('Everything is synced');
+	
 
-	Todo.findById(3).then(function (todo) {
-		if (todo) {
-			console.log(todo.toJSON());
-		} else {
-			console.log('Todo not found');
-		}
-	});
-
-	// Todo.create({
-	// 	description: 'Take out trash'
-	// }).then(function(todo) {
-	// 	return Todo.create({
-	// 		description: 'Clean office'
-	// 	});
-	// }).then(function() {
-	// 	// return Todo.findById(1)
-	// 	return Todo.findAll({
-	// 		where: {
-	// 			description: {
-	// 				$like: '%Office%'
-	// 			}
-	// 		}
-	// 	});
-	// }).then(function (todos) {
-	// 	if (todos) {
-	// 		todos.forEach(function (todo) {
+	// ---------Get Todos------------
+	// User.findById(1).then(function(user){
+	// 	user.getTodos({where: {completed: true}}).then(function (todos){
+	// 		todos.forEach(function(todo){
 	// 			console.log(todo.toJSON());
 	// 		});
-			
-	// 	} else {
-	// 		console.log('no todo found!');
-	// 	}
-	// }).catch(function(e) {
-	// 	console.log(e);
+	// 	});
+	// });
+
+	// ---------Create Todo------------
+	// Todo.create({
+	// 	description: 'Crap myself',
+	// 	completed: true
+	// }).then(function(todo){
+	// 	User.findById(1).then(function(user){
+	// 	user.addTodo(todo);
+	// 	});
+	// });
+
+	// ---------Create User------------
+	// User.create({
+	// 	email: 'fuxkhands@mckmike.memes'
+	// }).then(function(){
+	// 	return Todo.create({
+	// 		description: 'Clean Yard'
+	// 	});
+	// }).then(function(todo){
+	// 	User.findById(1).then(function(user){
+	// 		user.addTodo(todo);
+	// 	});
 	// });
 });
