@@ -136,9 +136,16 @@ app.post('/users/login',function(req, res){
 
 	//db.authenticate returns a promise defined in the user.js file
 	db.user.authenticate(body).then(function (user) {
-		res.json(user.toPublicJSON());
+		var token = user.generateToken('authentication');
+		if (token){
+			res.header('Auth', token).json(user.toPublicJSON());
+		}else{
+			res.status(401).send();
+		}
+		// res.header('Auth', user.generateToken('authentication')
+		// 	).json(user.toPublicJSON);
 	}, function (e) {
-		res.status(401).send(e.message);
+		res.status(401).send(); //Don't give potentially malicious users extra info
 	});
 
 	

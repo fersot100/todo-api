@@ -77,8 +77,12 @@ module.exports = function (sequelize, DataTypes) {
 				try{
 					var stringData = JSON.stringify({id: this.get('id'), type: type});
 					var encryptedData = crypto.AES.encrypt(stringData, 'abc123!@#').toString();
-					var 
+					var token = jwt.sign({
+						token: encryptedData
+					}, 'qwerty098');
+					return token;
 				}catch(e){
+					console.error(e);
 					return undefined;
 				}
 			}
