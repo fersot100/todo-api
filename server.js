@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
+var bcrypt = require('bcrypt');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -132,22 +133,14 @@ app.post('/users', function(req, res) {
 
 app.post('/users/login',function(req, res){
 	var body = _.pick(req.body, 'email', 'password');
-	if(typeof body.email !== 'string' || typeof	body.password !== 'string'){
-		return res.status(400).send();
-	}
-	db.user.findOne({
-		where: {
-			email: body.email
-		}
-	}).then(function(user){
-		if(!!user){
-			res.json(user);
-		} else{
-			res.status(401).send();
-		}
-	},function(e){
-		res.status(500).send();
+
+	//db.authenticate returns a promise defined in the user.js file
+	db.user.authenticate(body).then(function (user) {
+		res.json(user.toPublicJSON());
+	}, function () {
+		res.status(401).send();
 	});
+
 	
 });
 
