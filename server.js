@@ -137,8 +137,8 @@ app.post('/users/login',function(req, res){
 	//db.authenticate returns a promise defined in the user.js file
 	db.user.authenticate(body).then(function (user) {
 		res.json(user.toPublicJSON());
-	}, function () {
-		res.status(401).send();
+	}, function (e) {
+		res.status(401).send(e.message);
 	});
 
 	

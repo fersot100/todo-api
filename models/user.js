@@ -1,8 +1,10 @@
 var bcrypt = require('bcrypt');
 var _ = require('underscore');
+var crypto = require('crypto-js');
+var jwt = require('jsonwebtoken');
 
 module.exports = function (sequelize, DataTypes) {
-	return sequelize.define('user', {
+	var user = sequelize.define('user', {
 		email: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -44,20 +46,20 @@ module.exports = function (sequelize, DataTypes) {
 			authenticate: function(body) {
 				return new Promise(function(resolve, reject) {	
 					if(typeof body.email !== 'string' || typeof	body.password !== 'string'){
-						return reject();
+						reject('invalid attribute type');
 					}
-					db.user.findOne({
+					user.findOne({
 						where: {
 							email: body.email
 						}
 					}).then(function(user){
 						if(!user || 
 							!bcrypt.compareSync(body.password, user.get('password_hash'))){
-							return reject();
+							reject('password doesn\'t match or no user');
 						}
-						return resolve(user);
+						resolve(user);
 					},function(e){
-						return reject();
+						reject(e);
 					});
 				});
 			}
@@ -66,7 +68,21 @@ module.exports = function (sequelize, DataTypes) {
 			toPublicJSON: function () {
 				var json = this.toJSON();
 				return _.pick(json, 'id', 'email');
-			} 
+			},
+			generateToken: function(type) {
+				if(!_.isString(type)){
+					return undefined;
+				}
+
+				try{
+					var stringData = JSON.stringify({id: this.get('id'), type: type});
+					var encryptedData = crypto.AES.encrypt(stringData, 'abc123!@#').toString();
+					var 
+				}catch(e){
+					return undefined;
+				}
+			}
 		}
 	});
-}
+	return	user;
+};
