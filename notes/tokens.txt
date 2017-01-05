@@ -1,0 +1,28 @@
+Tokens are long generated strings that authenticate users to access certain methods on a website.
+
+	JWT - JSON Web Token
+
+A CLAIM is secure information that a token can relay to the user. The web token will contain all the information the user needs with little security necessities within itself. 
+
+A token is a JSON object on its own
+
+	aaaaaaaa.bbbbbbbb.cccccccc
+
+A token has three sections separated by a dot, all of it is base 64 encoded
+
+1) The header (aaa) will have 
+	- the 'typ' attribute which for our JSON web tokens should be 'JWT
+	- the 'alg' attribute specifying the hashing algorithm used (HS256, RS512, ES384, etc.)
+
+2) The payload/claims (bbb) has 
+	-Any information we need to transmite in JSON format
+	-The information related to the token itself
+	-Any information that needs to be secure should be encrypted by the server
+
+3) The signature/secret (ccc)
+	A JWS class has the .sign() function that signs off a token 
+
+
+The server must verify the token every time the user requests information that requires authentication 
+
+
