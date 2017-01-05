@@ -157,18 +157,31 @@ app.post('/users/login',function(req, res){
 	//db.authenticate returns a promise defined in the user.js file
 	db.user.authenticate(body).then(function (user) {
 		var token = user.generateToken('authentication');
-		if (token){
-			res.header('Auth', token).json(user.toPublicJSON());
-		}else{
-			res.status(401).send();
-		}
+		userInstance = user;
+		return db.token.create({
+			token: token
+		});
+		// if (token){
+		// 	res.header('Auth', token).json(user.toPublicJSON());
+		// }else{
+		// 	res.status(401).send();
+		// }
 		// res.header('Auth', user.generateToken('authentication')
 		// 	).json(user.toPublicJSON);
-	}, function (e) {
-		res.status(401).send(); //Don't give potentially malicious users extra info
+	}).then(function (tokenInstance){
+		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
+	}).catch(function() {
+		res.status(401).send();
 	});
+});
 
-	
+
+app.delete('/users/login', middleware.requireAuthentication,function (req,res){
+	req.token.destroy().then(function(){
+		res.status(204);
+	}).catch(function(){
+		res.status(500).send();
+	});
 });
 
 db.sequelize.sync({
